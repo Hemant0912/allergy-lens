@@ -1,11 +1,13 @@
 package com.allergylens.backend.controller;
 
+import com.allergylens.backend.dto.response.BatchScanResponse;
 import com.allergylens.backend.dto.response.ScanHistoryListResponse;
 import com.allergylens.backend.dto.response.ScanHistoryResponse;
 import com.allergylens.backend.dto.response.ScanResponse;
 import com.allergylens.backend.service.ScanService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
@@ -30,5 +32,13 @@ public class ScanController {
       @PathVariable Long profileId
   ) {
     return scanService.getScanHistory(profileId);
+  }
+
+  @PostMapping("/batch")
+  public ResponseEntity<BatchScanResponse> batchScan(
+      @RequestParam Long profileId,
+      @RequestParam List<MultipartFile> images) {
+
+    return ResponseEntity.ok(scanService.batchScan(profileId, images));
   }
 }

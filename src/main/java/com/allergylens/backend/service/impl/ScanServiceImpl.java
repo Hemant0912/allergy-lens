@@ -1,5 +1,6 @@
 package com.allergylens.backend.service.impl;
 
+import com.allergylens.backend.dto.response.BatchScanResponse;
 import com.allergylens.backend.dto.response.ProfileResponse;
 import com.allergylens.backend.dto.response.ScanHistoryListResponse;
 import com.allergylens.backend.dto.response.ScanResponse;
@@ -10,6 +11,7 @@ import com.allergylens.backend.repository.ScanHistoryRepository;
 import com.allergylens.backend.service.GeminiService;
 import com.allergylens.backend.service.ScanService;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -167,6 +169,39 @@ public class ScanServiceImpl implements ScanService {
     return ScanHistoryListResponse.builder()
         .profile(profileResponse)
         .history(history)
+        .build();
+  }
+  @Override
+  public BatchScanResponse batchScan(Long profileId, List<MultipartFile> images) {
+
+    if (images == null || images.isEmpty()) {
+      throw new RuntimeException("Please upload at least one image.");
+    }
+
+    if (images.size() > 5) {
+      throw new RuntimeException("Maximum 5 products can be scanned at once.");
+    }
+
+    List<ScanResponse> responses = new ArrayList<>();
+
+    for (MultipartFile image : images) {
+
+      ScanResponse response = scan(profileId, List.of(image));
+
+      responses.add(response);
+    }
+
+    long safeProducts = responses.stream()
+        .filter(ScanResponse::isSafe)
+        .count();
+
+    long unsafeProducts = responses.size() - safeProducts;
+
+    return BatchScanResponse.builder()
+        .totalProducts(responses.size())
+        .safeProducts((int) safeProducts)
+        .unsafeProducts((int) unsafeProducts)
+        .scans(responses)
         .build();
   }
 }
