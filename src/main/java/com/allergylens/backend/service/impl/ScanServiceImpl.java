@@ -89,6 +89,7 @@ public class ScanServiceImpl implements ScanService {
                   : String.join(", ", response.getTriggeredAllergies())
           )
           .confidence(response.getConfidence())
+          .healthScore(response.getHealthScore())
           .createdAt(LocalDateTime.now())
           .build();
 

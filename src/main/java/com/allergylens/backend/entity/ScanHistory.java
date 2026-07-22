@@ -31,6 +31,8 @@ public class ScanHistory {
 
   private String confidence;
 
+  private Integer healthScore;
+
   @Column(length = 5000)
   private String ingredients;
 

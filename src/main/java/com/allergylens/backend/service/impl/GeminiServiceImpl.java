@@ -65,8 +65,11 @@ Your task:
    HIGH
 9. Write a short summary (maximum 2 sentences).
 10. Give a practical recommendation to the user.
-11. Suggest 2-3 safer alternative products if the food is unsafe.
-12. Give your confidence in this analysis using ONLY:
+11. Estimate a health score between 0 and 100.
+12. Explain the health score in 3-4 short bullet points.
+13. If the product is unsafe, suggest 2-3 safer alternative products.
+14. If the product is safe, return an empty array for alternativeProducts.
+15. Give your confidence in this analysis using ONLY:
     HIGH
     MEDIUM
     LOW
@@ -82,19 +85,53 @@ Rules:
 - If there is uncertainty, lower the confidence to MEDIUM or LOW.
 - If no alternatives are appropriate, return an empty array.
 
+Nutrition Analysis Rules:
+- If the Nutrition Facts panel is visible, extract the nutrition values exactly.
+- If the Nutrition Facts panel is not visible, estimate approximate nutrition values based on the identified product.
+- Append "(estimated)" to every estimated value.
+- Never invent precise nutrition values.
+- If ANY nutrition value is estimated, confidence MUST be LOW.
+- Never return MEDIUM or HIGH confidence when nutrition values are estimated.
+- healthScore must be an integer between 0 and 100.
+- Estimate the healthScore based on the estimated or extracted nutrition values.
+- Base the healthScore on sugar, saturated fat, sodium, protein, fiber (if available), and overall processing level.
+- The healthScore is independent of the user's allergies.
+
 Return exactly this JSON format:
 
 {
-  "productName": "",
-  "ingredients": [],
-  "dangerousIngredients": [],
-  "triggeredAllergies": [],
+  "productName": "string",
+  "ingredients": [
+    "string"
+  ],
+  "dangerousIngredients": [
+    "string"
+  ],
   "safe": true,
-  "riskLevel": "LOW",
-  "summary": "",
-  "recommendation": "",
-  "alternativeProducts": [],
-  "confidence": "HIGH"
+  "riskLevel": "LOW | MEDIUM | HIGH",
+  "summary": "string",
+  "recommendation": "string",
+  "alternativeProducts": [
+    "string"
+  ],
+  "confidence": "HIGH | MEDIUM | LOW",
+  "triggeredAllergies": [
+    "string"
+  ],
+  "nutrition": {
+    "calories": "string",
+    "protein": "string",
+    "fat": "string",
+    "carbs": "string",
+    "sugar": "string"
+  },
+"healthScore": 74,
+"healthInsights": [
+  "Good source of protein",
+  "Low sugar",
+  "Moderate fat",
+  "Suitable for regular consumption"
+]
 }
 """.formatted(allergies == null ? "None" : allergies);
 

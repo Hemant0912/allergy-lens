@@ -31,4 +31,10 @@ public class ScanResponse {
   private String confidence;
 
   private List<String> triggeredAllergies;
+
+  private NutritionInfo nutrition;
+
+  private Integer healthScore;
+
+  private List<String> healthInsights;
 }
