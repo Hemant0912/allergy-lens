@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -18,8 +20,10 @@ public class GeminiServiceImpl implements GeminiService {
   @Value("${gemini.api.key}")
   private String apiKey;
 
+  private final ObjectMapper objectMapper;
+
   private static final String GEMINI_URL =
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=";
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=";
 
   @Override
   public String analyzeFoodLabel(MultipartFile image, String allergies) {
@@ -31,8 +35,6 @@ public class GeminiServiceImpl implements GeminiService {
       String base64Image = Base64.getEncoder()
           .encodeToString(image.getBytes());
 
-      System.out.println(base64Image.substring(0, 50));
-
       String prompt = """
 You are a food allergy expert.
 
@@ -41,7 +43,17 @@ Analyze the food label image.
 User allergies:
 %s
 
-Return ONLY valid JSON.
+Return ONLY a raw JSON object.
+
+Do NOT wrap the response in markdown.
+Do NOT use ```json.
+Do NOT add explanations.
+Return only the JSON object.
+
+Use one of these risk levels:
+LOW
+MEDIUM
+HIGH
 
 {
   "ingredients": [],
@@ -83,10 +95,24 @@ Return ONLY valid JSON.
           .retrieve()
           .body(String.class);
 
-      return response;
+      JsonNode root = objectMapper.readTree(response);
+
+      String aiResponse = root.path("candidates")
+          .get(0)
+          .path("content")
+          .path("parts")
+          .get(0)
+          .path("text")
+          .asText();
+
+      aiResponse = aiResponse.replace("```json", "")
+          .replace("```", "")
+          .trim();
+
+      return aiResponse;
 
     } catch (IOException e) {
-      throw new RuntimeException("Failed to read image", e);
+      throw new RuntimeException("Failed to process Gemini response", e);
     }
   }
   private String toJson(String value) {

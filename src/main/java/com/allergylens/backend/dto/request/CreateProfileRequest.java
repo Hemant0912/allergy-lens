@@ -9,7 +9,6 @@ public class CreateProfileRequest {
   @NotBlank
   private String name;
 
-  @NotBlank
   private String allergies;
 
   @NotBlank

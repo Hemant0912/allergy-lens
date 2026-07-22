@@ -33,6 +33,7 @@ public class ProfileServiceImpl implements ProfileService {
         .name(savedProfile.getName())
         .allergies(savedProfile.getAllergies())
         .diet(savedProfile.getDiet())
+        .createdAt(savedProfile.getCreatedAt())
         .build();
   }
   @Override
@@ -46,6 +47,7 @@ public class ProfileServiceImpl implements ProfileService {
         .name(profile.getName())
         .allergies(profile.getAllergies())
         .diet(profile.getDiet())
+        .createdAt(profile.getCreatedAt())
         .build();
   }
 }
