@@ -20,4 +20,9 @@ public class ProfileController {
   public ProfileResponse createProfile(@Valid @RequestBody CreateProfileRequest request) {
     return profileService.createProfile(request);
   }
+
+  @GetMapping("/{id}")
+  public ProfileResponse getProfile(@PathVariable Long id) {
+    return profileService.getProfile(id);
+  }
 }

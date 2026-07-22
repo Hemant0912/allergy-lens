@@ -35,4 +35,17 @@ public class ProfileServiceImpl implements ProfileService {
         .diet(savedProfile.getDiet())
         .build();
   }
+  @Override
+  public ProfileResponse getProfile(Long id) {
+
+    Profile profile = profileRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Profile not found"));
+
+    return ProfileResponse.builder()
+        .id(profile.getId())
+        .name(profile.getName())
+        .allergies(profile.getAllergies())
+        .diet(profile.getDiet())
+        .build();
+  }
 }

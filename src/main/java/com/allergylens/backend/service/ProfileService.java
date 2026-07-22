@@ -7,4 +7,7 @@ public interface ProfileService {
 
   ProfileResponse createProfile(CreateProfileRequest request);
 
+
+  ProfileResponse getProfile(Long id);
 }
+
