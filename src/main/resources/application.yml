@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: backend
+
+  datasource:
+    url: jdbc:postgresql://ep-dry-hall-azv80cmz-pooler.c-3.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require
+    username: neondb_owner
+    password: npg_eLVmv2lCyW1w
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
