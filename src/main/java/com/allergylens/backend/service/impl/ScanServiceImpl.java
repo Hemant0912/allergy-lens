@@ -28,18 +28,24 @@ public class ScanServiceImpl implements ScanService {
   private final ObjectMapper objectMapper;
 
   @Override
-  public ScanResponse scan(Long profileId, MultipartFile image) {
+  public ScanResponse scan(Long profileId, List<MultipartFile> images) {
 
     try {
 
-      // validate image
-      if (image == null || image.isEmpty()) {
-        throw new RuntimeException("Please upload an image.");
+      // validate images
+      if (images == null || images.isEmpty()) {
+        throw new RuntimeException("Please upload at least one image.");
       }
 
-      if (image.getContentType() == null ||
-          !image.getContentType().startsWith("image/")) {
-        throw new RuntimeException("Only image files are allowed.");
+      for (MultipartFile image : images) {
+        if (image.isEmpty()) {
+          throw new RuntimeException("One of the uploaded images is empty.");
+        }
+
+        if (image.getContentType() == null ||
+            !image.getContentType().startsWith("image/")) {
+          throw new RuntimeException("Only image files are allowed.");
+        }
       }
 
       // validate profile
@@ -47,18 +53,23 @@ public class ScanServiceImpl implements ScanService {
           .orElseThrow(() -> new RuntimeException("Profile not found"));
 
       String geminiJson = geminiService.analyzeFoodLabel(
-          image,
+          images,
           profile.getAllergies()
       );
 
       ScanResponse response =
           objectMapper.readValue(geminiJson, ScanResponse.class);
 
+      System.out.println("Triggered Allergies = " + response.getTriggeredAllergies());
+
       ScanHistory history = ScanHistory.builder()
           .profileId(profileId)
-          .ingredients(response.getIngredients() == null
-              ? ""
-              : String.join(", ", response.getIngredients()))
+          .productName(response.getProductName())
+          .ingredients(
+              response.getIngredients() == null
+                  ? ""
+                  : String.join(", ", response.getIngredients())
+          )
           .dangerousIngredients(
               response.getDangerousIngredients() == null
                   ? ""
@@ -67,6 +78,17 @@ public class ScanServiceImpl implements ScanService {
           .safe(response.isSafe())
           .riskLevel(response.getRiskLevel())
           .summary(response.getSummary())
+          .recommendation(response.getRecommendation())
+          .alternativeProducts(
+              response.getAlternativeProducts() == null
+                  ? ""
+                  : String.join(", ", response.getAlternativeProducts())
+          ).triggeredAllergies(
+              response.getTriggeredAllergies() == null
+                  ? ""
+                  : String.join(", ", response.getTriggeredAllergies())
+          )
+          .confidence(response.getConfidence())
           .createdAt(LocalDateTime.now())
           .build();
 
@@ -92,6 +114,7 @@ public class ScanServiceImpl implements ScanService {
         .stream()
         .map(scan -> ScanHistoryResponse.builder()
             .id(scan.getId())
+            .productName(scan.getProductName())
             .ingredients(
                 scan.getIngredients() == null ||
                     scan.getIngredients().isBlank()
@@ -111,6 +134,23 @@ public class ScanServiceImpl implements ScanService {
             .safe(scan.getSafe())
             .riskLevel(scan.getRiskLevel())
             .summary(scan.getSummary())
+            .recommendation(scan.getRecommendation())
+            .alternativeProducts(
+                scan.getAlternativeProducts() == null ||
+                    scan.getAlternativeProducts().isBlank()
+                    ? List.of()
+                    : Arrays.stream(scan.getAlternativeProducts().split(","))
+                        .map(String::trim)
+                        .toList()
+            ).triggeredAllergies(
+                scan.getTriggeredAllergies() == null
+                    || scan.getTriggeredAllergies().isBlank()
+                    ? List.of()
+                    : Arrays.stream(scan.getTriggeredAllergies().split(","))
+                        .map(String::trim)
+                        .toList()
+            )
+            .confidence(scan.getConfidence())
             .createdAt(scan.getCreatedAt())
             .build())
         .toList();

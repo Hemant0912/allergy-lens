@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ScanResponse {
 
+  private String productName;
+
   private List<String> ingredients;
 
   private List<String> dangerousIngredients;
@@ -21,4 +23,12 @@ public class ScanResponse {
   private String riskLevel;
 
   private String summary;
+
+  private String recommendation;
+
+  private List<String> alternativeProducts;
+
+  private String confidence;
+
+  private List<String> triggeredAllergies;
 }

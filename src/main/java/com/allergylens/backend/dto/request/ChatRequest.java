@@ -1,0 +1,11 @@
+package com.allergylens.backend.dto.request;
+
+import lombok.Data;
+
+@Data
+public class ChatRequest {
+
+  private Long profileId;
+
+  private String message;
+}

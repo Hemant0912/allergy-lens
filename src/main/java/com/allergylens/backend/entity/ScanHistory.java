@@ -20,6 +20,17 @@ public class ScanHistory {
 
   private Long profileId;
 
+  @Column(length = 500)
+  private String productName;
+
+  @Column(length = 3000)
+  private String recommendation;
+
+  @Column(length = 3000)
+  private String alternativeProducts;
+
+  private String confidence;
+
   @Column(length = 5000)
   private String ingredients;
 
@@ -34,4 +45,8 @@ public class ScanHistory {
   private String summary;
 
   private LocalDateTime createdAt;
+
+  @Column(length = 1000)
+  private String triggeredAllergies;
+
 }

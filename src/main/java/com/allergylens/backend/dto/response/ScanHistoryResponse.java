@@ -5,11 +5,13 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 
-@Data
 @Builder
+@Data
 public class ScanHistoryResponse {
 
   private Long id;
+
+  private String productName;
 
   private List<String> ingredients;
 
@@ -20,6 +22,14 @@ public class ScanHistoryResponse {
   private String riskLevel;
 
   private String summary;
+
+  private String recommendation;
+
+  private List<String> alternativeProducts;
+
+  private List<String> triggeredAllergies;
+
+  private String confidence;
 
   private LocalDateTime createdAt;
 }

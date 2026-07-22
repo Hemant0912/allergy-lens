@@ -20,9 +20,9 @@ public class ScanController {
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ScanResponse scan(
       @RequestParam Long profileId,
-      @RequestParam MultipartFile image
+      @RequestParam List<MultipartFile> images
   ) {
-    return scanService.scan(profileId, image);
+    return scanService.scan(profileId, images);
   }
 
   @GetMapping("/history/{profileId}")
