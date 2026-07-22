@@ -1,5 +1,6 @@
 package com.allergylens.backend.service.impl;
 
+import com.allergylens.backend.dto.response.IngredientExplainResponse;
 import com.allergylens.backend.service.GeminiService;
 import java.io.IOException;
 import java.util.Base64;
@@ -225,7 +226,7 @@ User Profile:
 - Allergies: %s
 - Diet: %s
 
-Answer the user's question in a friendly and concise way.
+Answer the user's question in a friendly, concise, conversational single paragraph.
 
 Rules:
 - Prioritize food safety.
@@ -234,6 +235,10 @@ Rules:
 - If you are unsure, advise the user to verify the ingredient label.
 - Do not answer unrelated questions like programming, politics, hacking, etc.
 - Keep the response under 120 words.
+- Return the response as a single paragraph.
+- Do not use bullet points.
+- Do not use newline characters.
+- Do not use markdown formatting such as **bold** or lists.
 
 User Question:
 %s
@@ -278,6 +283,100 @@ User Question:
 
     } catch (Exception e) {
       throw new RuntimeException("Failed to process chat response", e);
+    }
+  }
+  @Override
+  public IngredientExplainResponse explainIngredient(String ingredient) {
+
+    String prompt = """
+You are a food ingredient expert.
+
+Explain the following food ingredient:
+
+"%s"
+
+Return ONLY valid JSON.
+
+{
+  "ingredient": "Milk Solids",
+  "description": "Milk solids are concentrated milk proteins commonly used in processed foods.",
+  "commonUses": [
+    "Chocolate",
+    "Ice Cream",
+    "Biscuits"
+  ],
+  "allergyWarnings": [
+    "Milk Allergy",
+    "Lactose Intolerance"
+  ],
+  "recommendation": "Avoid if you have a milk allergy."
+}
+
+Rules:
+- Return ONLY valid JSON.
+- Do NOT wrap the response in markdown.
+- Do NOT include ```json.
+- Description must be under 25 words.
+- Recommendation must be under 15 words.
+- Maximum 3 common uses.
+- commonUses should contain only short names, not sentences.
+- allergyWarnings must contain ONLY allergy names.
+- Do not write complete sentences inside allergyWarnings.
+- If there are no allergy warnings, return an empty array.
+- Do not return explanation outside JSON.
+- If the ingredient is generally safe for most people, return an empty allergyWarnings array.
+- If the ingredient is unknown, state that clearly in the description.
+- Avoid absolute statements like "safe for everyone".
+- Use phrases like "generally safe for most people".
+- If the ingredient is not a food ingredient, set commonUses to an empty array.
+- If the ingredient is a food additive (e.g., E330, Xanthan Gum, Soy Lecithin), explain its purpose in food.
+""".formatted(ingredient);
+
+    String requestBody = """
+{
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": %s
+        }
+      ]
+    }
+  ]
+}
+""".formatted(toJson(prompt));
+
+    String response = restClient.post()
+        .uri(GEMINI_URL + apiKey)
+        .header("Content-Type", "application/json")
+        .body(requestBody)
+        .retrieve()
+        .body(String.class);
+
+    try {
+
+      JsonNode root = objectMapper.readTree(response);
+
+      String aiResponse = root.path("candidates")
+          .get(0)
+          .path("content")
+          .path("parts")
+          .get(0)
+          .path("text")
+          .asText();
+
+      aiResponse = aiResponse
+          .replace("```json", "")
+          .replace("```", "")
+          .trim();
+
+      return objectMapper.readValue(
+          aiResponse,
+          IngredientExplainResponse.class
+      );
+
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to process ingredient explanation", e);
     }
   }
 }
