@@ -1,17 +1,18 @@
 package com.allergylens.backend.dto.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductSummary {
+public class IngredientAnalysis {
 
-  private String productName;
-  private Integer riskLevel;
-  private Integer healthScore;
+  private String ingredient;
+
+  private String simpleTerm;
+
+  private boolean status;
+
 }

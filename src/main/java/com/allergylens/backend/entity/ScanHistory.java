@@ -41,7 +41,7 @@ public class ScanHistory {
 
   private Boolean safe;
 
-  private String riskLevel;
+  private Integer riskLevel;
 
   @Column(length = 3000)
   private String summary;

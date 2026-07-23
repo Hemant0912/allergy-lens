@@ -19,7 +19,7 @@ public class ScanHistoryResponse {
 
   private Boolean safe;
 
-  private String riskLevel;
+  private Integer riskLevel;
 
   private String summary;
 

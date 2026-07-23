@@ -57,20 +57,24 @@ Your task:
 2. Extract ingredients if they are clearly visible on the packaging.
 3. If the ingredient list is not visible, infer the likely major ingredients based on the identified food product.
 4. Compare the identified or inferred ingredients with the user's allergies.
-5. Identify the dangerous ingredients that cause the allergy risk.
+5. Analyze every ingredient and determine whether it is safe for the user.
 6. Identify which of the user's allergies are triggered.
-7. Determine whether the product is safe.
-8. Assign exactly one risk level:
-   LOW
-   MEDIUM
-   HIGH
-9. Write a short summary (maximum 2 sentences).
-10. Give a practical recommendation to the user.
-11. Estimate a health score between 0 and 100.
-12. Explain the health score in 3-4 short bullet points.
-13. If the product is unsafe, suggest 2-3 safer alternative products.
-14. If the product is safe, return an empty array for alternativeProducts.
-15. Give your confidence in this analysis using ONLY:
+7. For every ingredient, provide:
+   - original ingredient name
+   - simple everyday name
+   - whether it is safe for the user (true/false)
+8. Determine whether the product is safe.
+9. Assign a risk level from 1 to 10.
+
+1 = Completely safe
+10 = Extremely dangerous
+10. Write a short summary (maximum 2 sentences).
+11. Give a practical recommendation to the user.
+12. Estimate a health score between 0 and 100.
+13. Explain the health score in 3-4 short bullet points.
+14. If the product is unsafe, suggest 2-3 safer alternative products.
+15. If the product is safe, return an empty array for alternativeProducts.
+16. Give your confidence in this analysis using ONLY:
     HIGH
     MEDIUM
     LOW
@@ -91,9 +95,9 @@ Rules:
 {
   "productName": "INVALID_IMAGE",
   "ingredients": [],
-  "dangerousIngredients": [],
+  "ingredientAnalysis": [],
   "safe": false,
-  "riskLevel": "INVALID",
+  "riskLevel":10,
   "summary": "The uploaded image is not a packaged food product.",
   "recommendation": "Please upload a clear image of a packaged food product showing the front label or ingredient list.",
   "alternativeProducts": [],
@@ -120,7 +124,21 @@ Nutrition Analysis Rules:
 - Estimate the healthScore based on the estimated or extracted nutrition values.
 - Base the healthScore on sugar, saturated fat, sodium, protein, fiber (if available), and overall processing level.
 - The healthScore is independent of the user's allergies.
-
+- riskLevel must be an integer between 1 and 10.
+- Never return LOW, MEDIUM or HIGH.
+- ingredientAnalysis must include every ingredient.
+- simpleTerm should be easy for everyone to understand.
+- Examples:
+  Milk Solids -> Milk
+  Casein -> Milk Protein
+  Whey Powder -> Milk
+  Sucrose -> Sugar
+  Dextrose -> Sugar
+  Soy Lecithin -> Soy
+  Sodium Chloride -> Salt
+  INS950 -> Artificial Sweetener
+- status=true means safe for this user.
+- status=false means unsafe for this user.
 Return exactly this JSON format:
 
 {
@@ -128,11 +146,15 @@ Return exactly this JSON format:
   "ingredients": [
     "string"
   ],
-  "dangerousIngredients": [
-    "string"
-  ],
+  "ingredientAnalysis": [
+     {
+       "ingredient": "Milk Solids",
+       "simpleTerm": "Milk",
+       "status": false
+      }
+   ],
   "safe": true,
-  "riskLevel": "LOW | MEDIUM | HIGH",
+  "riskLevel":7,
   "summary": "string",
   "recommendation": "string",
   "alternativeProducts": [

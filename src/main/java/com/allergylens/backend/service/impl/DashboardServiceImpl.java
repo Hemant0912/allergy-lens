@@ -108,17 +108,23 @@ public class DashboardServiceImpl implements DashboardService {
         )
         .lowRiskProducts(
             scans.stream()
-                .filter(scan -> "LOW".equalsIgnoreCase(scan.getRiskLevel()))
+                .filter(scan -> scan.getRiskLevel() != null
+                    && scan.getRiskLevel() >= 1
+                    && scan.getRiskLevel() <= 3)
                 .count()
         )
         .mediumRiskProducts(
             scans.stream()
-                .filter(scan -> "MEDIUM".equalsIgnoreCase(scan.getRiskLevel()))
+                .filter(scan -> scan.getRiskLevel() != null
+                    && scan.getRiskLevel() >= 4
+                    && scan.getRiskLevel() <= 6)
                 .count()
         )
         .highRiskProducts(
             scans.stream()
-                .filter(scan -> "HIGH".equalsIgnoreCase(scan.getRiskLevel()))
+                .filter(scan -> scan.getRiskLevel() != null
+                    && scan.getRiskLevel() >= 7
+                    && scan.getRiskLevel() <= 10)
                 .count()
         )
         .safeProductsList(safeProductsList)

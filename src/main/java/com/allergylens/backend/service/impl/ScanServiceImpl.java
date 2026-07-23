@@ -76,11 +76,7 @@ public class ScanServiceImpl implements ScanService {
                   ? ""
                   : String.join(", ", response.getIngredients())
           )
-          .dangerousIngredients(
-              response.getDangerousIngredients() == null
-                  ? ""
-                  : String.join(", ", response.getDangerousIngredients())
-          )
+
           .safe(response.isSafe())
           .riskLevel(response.getRiskLevel())
           .summary(response.getSummary())
@@ -127,14 +123,6 @@ public class ScanServiceImpl implements ScanService {
                     scan.getIngredients().isBlank()
                     ? List.of()
                     : Arrays.stream(scan.getIngredients().split(","))
-                        .map(String::trim)
-                        .toList()
-            )
-            .dangerousIngredients(
-                scan.getDangerousIngredients() == null ||
-                    scan.getDangerousIngredients().isBlank()
-                    ? List.of()
-                    : Arrays.stream(scan.getDangerousIngredients().split(","))
                         .map(String::trim)
                         .toList()
             )

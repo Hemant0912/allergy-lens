@@ -16,11 +16,11 @@ public class ScanResponse {
 
   private List<String> ingredients;
 
-  private List<String> dangerousIngredients;
+  private List<IngredientAnalysis> ingredientAnalysis;
 
   private boolean safe;
 
-  private String riskLevel;
+  private Integer riskLevel;
 
   private String summary;
 
