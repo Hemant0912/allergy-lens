@@ -54,27 +54,31 @@ The user has the following allergies:
 Your task:
 
 1. Identify the product name.
-2. Extract ingredients if they are clearly visible on the packaging.
-3. If the ingredient list is not visible, infer the likely major ingredients based on the identified food product.
-4. Compare the identified or inferred ingredients with the user's allergies.
-5. Analyze every ingredient and determine whether it is safe for the user.
-6. Identify which of the user's allergies are triggered.
-7. For every ingredient, provide:
-   - original ingredient name
-   - simple everyday name
-   - whether it is safe for the user (true/false)
-8. Determine whether the product is safe.
-9. Assign a risk level from 1 to 10.
+2. If the ingredient list is clearly visible, extract ONLY the ingredients that are explicitly written on the packaging.
+3. Never add extra ingredients that are not written on the label.
+4. Only infer ingredients if the ingredient list is completely missing or unreadable.
+5. If only part of the ingredient list is visible, return only the visible ingredients and do not guess the remaining ones.
+6. Compare the identified or inferred ingredients with the user's allergies.
+7. Analyze every ingredient and determine whether it is safe for the user.
+8. Identify which of the user's allergies are triggered.
+9. For every ingredient, provide:
+   - The original ingredient name exactly as written on the packaging.
+   - A simple everyday name that a non-technical user can understand.
+   - Whether the ingredient is safe for the user (true/false).
+10. Determine whether the product is safe.
+11. Assign a risk level from 1 to 10.
 
 1 = Completely safe
 10 = Extremely dangerous
-10. Write a short summary (maximum 2 sentences).
-11. Give a practical recommendation to the user.
-12. Estimate a health score between 0 and 100.
-13. Explain the health score in 3-4 short bullet points.
-14. If the product is unsafe, suggest 2-3 safer alternative products.
-15. If the product is safe, return an empty array for alternativeProducts.
-16. Give your confidence in this analysis using ONLY:
+
+12. Write a short summary (maximum 2 sentences).
+13. Give a practical recommendation to the user.
+14. Estimate a health score between 0 and 100.
+15. Explain the health score in 3-4 short bullet points.
+16. If the product is unsafe, suggest 2-3 realistic alternative packaged food products that are less likely to contain the user's allergens.
+17. If no suitable alternatives can be confidently suggested, return an empty array.
+18. If the product is safe, return an empty array for alternativeProducts.
+19. Give your confidence in this analysis using ONLY:
     HIGH
     MEDIUM
     LOW
@@ -85,13 +89,20 @@ Rules:
 - Do NOT include ```json.
 - Do NOT explain your reasoning.
 - If the product name cannot be identified, return "Unknown Product".
-- If the ingredient list is not visible, infer the most likely ingredients based on the product type.
+- Only infer ingredients when the ingredient list is completely missing or unreadable.
 - Never assume a product is safe just because the ingredient list is missing.
 - If there is uncertainty, lower the confidence to MEDIUM or LOW.
 - If no alternatives are appropriate, return an empty array.
 - If the uploaded image is NOT a packaged food product, do NOT analyze it.
 - If the image contains people, animals, vehicles, buildings, documents, electronics, scenery, or anything other than a packaged food product, return exactly this JSON:
-
+- Never invent or assume additional ingredients when an ingredient list is visible.
+- The ingredient list must exactly match the text on the package whenever it is readable.
+- If only 4 ingredients are visible, return only those 4 ingredients.
+- Accuracy is more important than completeness.
+- Preserve the ingredient names exactly as written on the packaging whenever they are readable.
+- Do not correct spelling, expand abbreviations, or rename ingredients in the ingredients array.
+- simpleTerm should be a common everyday name that a non-technical user can understand.
+- If no simpler name exists, return the original ingredient name.
 {
   "productName": "INVALID_IMAGE",
   "ingredients": [],
