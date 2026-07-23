@@ -85,7 +85,30 @@ Rules:
 - Never assume a product is safe just because the ingredient list is missing.
 - If there is uncertainty, lower the confidence to MEDIUM or LOW.
 - If no alternatives are appropriate, return an empty array.
+- If the uploaded image is NOT a packaged food product, do NOT analyze it.
+- If the image contains people, animals, vehicles, buildings, documents, electronics, scenery, or anything other than a packaged food product, return exactly this JSON:
 
+{
+  "productName": "INVALID_IMAGE",
+  "ingredients": [],
+  "dangerousIngredients": [],
+  "safe": false,
+  "riskLevel": "INVALID",
+  "summary": "The uploaded image is not a packaged food product.",
+  "recommendation": "Please upload a clear image of a packaged food product showing the front label or ingredient list.",
+  "alternativeProducts": [],
+  "confidence": "LOW",
+  "triggeredAllergies": [],
+  "nutrition": {
+    "calories": "N/A",
+    "protein": "N/A",
+    "fat": "N/A",
+    "carbs": "N/A",
+    "sugar": "N/A"
+  },
+  "healthScore": 0,
+  "healthInsights": []
+}
 Nutrition Analysis Rules:
 - If the Nutrition Facts panel is visible, extract the nutrition values exactly.
 - If the Nutrition Facts panel is not visible, estimate approximate nutrition values based on the identified product.

@@ -61,6 +61,10 @@ public class ScanServiceImpl implements ScanService {
 
       ScanResponse response =
           objectMapper.readValue(geminiJson, ScanResponse.class);
+      if ("INVALID_IMAGE".equals(response.getProductName())) {
+        throw new RuntimeException(
+            "Invalid image. Please upload a clear image of a packaged food product.");
+      }
 
       System.out.println("Triggered Allergies = " + response.getTriggeredAllergies());
 
