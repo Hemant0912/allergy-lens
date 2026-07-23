@@ -8,9 +8,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ScanService {
 
-  ScanResponse scan(Long profileId, List<MultipartFile> images);
+  ScanResponse scan(List<MultipartFile> images, String allergies);
 
-  ScanHistoryListResponse getScanHistory(Long profileId);
-
-  BatchScanResponse batchScan(Long profileId, List<MultipartFile> images);
 }

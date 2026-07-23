@@ -24,13 +24,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ScanServiceImpl implements ScanService {
 
-  private final ProfileRepository profileRepository;
-  private final ScanHistoryRepository scanHistoryRepository;
   private final GeminiService geminiService;
   private final ObjectMapper objectMapper;
 
   @Override
-  public ScanResponse scan(Long profileId, List<MultipartFile> images) {
+  public ScanResponse scan(List<MultipartFile> images, String allergies){
 
     try {
 
@@ -51,12 +49,10 @@ public class ScanServiceImpl implements ScanService {
       }
 
       // validate profile
-      Profile profile = profileRepository.findById(profileId)
-          .orElseThrow(() -> new RuntimeException("Profile not found"));
 
       String geminiJson = geminiService.analyzeFoodLabel(
           images,
-          profile.getAllergies()
+          allergies
       );
 
       ScanResponse response =
@@ -67,36 +63,6 @@ public class ScanServiceImpl implements ScanService {
       }
 
       System.out.println("Triggered Allergies = " + response.getTriggeredAllergies());
-
-      ScanHistory history = ScanHistory.builder()
-          .profileId(profileId)
-          .productName(response.getProductName())
-          .ingredients(
-              response.getIngredients() == null
-                  ? ""
-                  : String.join(", ", response.getIngredients())
-          )
-
-          .safe(response.isSafe())
-          .riskLevel(response.getRiskLevel())
-          .summary(response.getSummary())
-          .recommendation(response.getRecommendation())
-          .alternativeProducts(
-              response.getAlternativeProducts() == null
-                  ? ""
-                  : String.join(", ", response.getAlternativeProducts())
-          ).triggeredAllergies(
-              response.getTriggeredAllergies() == null
-                  ? ""
-                  : String.join(", ", response.getTriggeredAllergies())
-          )
-          .confidence(response.getConfidence())
-          .healthScore(response.getHealthScore())
-          .createdAt(LocalDateTime.now())
-          .build();
-
-      scanHistoryRepository.save(history);
-
       return response;
 
     } catch (RuntimeException e) {
@@ -104,96 +70,5 @@ public class ScanServiceImpl implements ScanService {
     } catch (Exception e) {
       throw new RuntimeException("Failed to scan image", e);
     }
-  }
-
-  @Override
-  public ScanHistoryListResponse getScanHistory(Long profileId) {
-
-    Profile profile = profileRepository.findById(profileId)
-        .orElseThrow(() -> new RuntimeException("Profile not found"));
-
-    List<ScanHistoryResponse> history = scanHistoryRepository
-        .findByProfileIdOrderByCreatedAtDesc(profileId)
-        .stream()
-        .map(scan -> ScanHistoryResponse.builder()
-            .id(scan.getId())
-            .productName(scan.getProductName())
-            .ingredients(
-                scan.getIngredients() == null ||
-                    scan.getIngredients().isBlank()
-                    ? List.of()
-                    : Arrays.stream(scan.getIngredients().split(","))
-                        .map(String::trim)
-                        .toList()
-            )
-            .safe(scan.getSafe())
-            .riskLevel(scan.getRiskLevel())
-            .summary(scan.getSummary())
-            .recommendation(scan.getRecommendation())
-            .alternativeProducts(
-                scan.getAlternativeProducts() == null ||
-                    scan.getAlternativeProducts().isBlank()
-                    ? List.of()
-                    : Arrays.stream(scan.getAlternativeProducts().split(","))
-                        .map(String::trim)
-                        .toList()
-            ).triggeredAllergies(
-                scan.getTriggeredAllergies() == null
-                    || scan.getTriggeredAllergies().isBlank()
-                    ? List.of()
-                    : Arrays.stream(scan.getTriggeredAllergies().split(","))
-                        .map(String::trim)
-                        .toList()
-            )
-            .confidence(scan.getConfidence())
-            .createdAt(scan.getCreatedAt())
-            .build())
-        .toList();
-
-    ProfileResponse profileResponse = ProfileResponse.builder()
-        .id(profile.getId())
-        .name(profile.getName())
-        .allergies(profile.getAllergies())
-        .diet(profile.getDiet())
-        .createdAt(profile.getCreatedAt())
-        .build();
-
-    return ScanHistoryListResponse.builder()
-        .profile(profileResponse)
-        .history(history)
-        .build();
-  }
-  @Override
-  public BatchScanResponse batchScan(Long profileId, List<MultipartFile> images) {
-
-    if (images == null || images.isEmpty()) {
-      throw new RuntimeException("Please upload at least one image.");
-    }
-
-    if (images.size() > 5) {
-      throw new RuntimeException("Maximum 5 products can be scanned at once.");
-    }
-
-    List<ScanResponse> responses = new ArrayList<>();
-
-    for (MultipartFile image : images) {
-
-      ScanResponse response = scan(profileId, List.of(image));
-
-      responses.add(response);
-    }
-
-    long safeProducts = responses.stream()
-        .filter(ScanResponse::isSafe)
-        .count();
-
-    long unsafeProducts = responses.size() - safeProducts;
-
-    return BatchScanResponse.builder()
-        .totalProducts(responses.size())
-        .safeProducts((int) safeProducts)
-        .unsafeProducts((int) unsafeProducts)
-        .scans(responses)
-        .build();
   }
 }
