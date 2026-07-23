@@ -8,7 +8,7 @@ public interface GeminiService {
 
   String analyzeFoodLabel(List<MultipartFile> images, String allergies);
 
-  String chat(String message, String allergies, String diet);
+  String chat(String message);
 
   IngredientExplainResponse explainIngredient(String ingredient);
 }

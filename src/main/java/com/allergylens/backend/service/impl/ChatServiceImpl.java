@@ -13,21 +13,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
 
-  private final ProfileRepository profileRepository;
-
   private final GeminiService geminiService;
 
   @Override
   public ChatResponse chat(ChatRequest request) {
 
-    Profile profile = profileRepository.findById(request.getProfileId())
-        .orElseThrow(() -> new RuntimeException("Profile not found"));
-
-    String reply = geminiService.chat(
-        request.getMessage(),
-        profile.getAllergies(),
-        profile.getDiet()
-    );
+    String reply = geminiService.chat(request.getMessage());
 
     return ChatResponse.builder()
         .reply(reply)

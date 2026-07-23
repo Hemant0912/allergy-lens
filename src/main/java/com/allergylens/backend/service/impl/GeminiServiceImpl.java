@@ -272,37 +272,30 @@ Return exactly this JSON format:
             .replace("\t", "\\t")
         + "\"";
   }
+
   @Override
-  public String chat(String message, String allergies, String diet) {
+  public String chat(String message) {
 
     String prompt = """
 You are AllergyLens AI, a food allergy assistant.
 
-User Profile:
-- Allergies: %s
-- Diet: %s
-
-Answer the user's question in a friendly, concise, conversational single paragraph.
+Answer the user's food-related question in a friendly, concise, conversational single paragraph.
 
 Rules:
+- Answer only food, nutrition, ingredient, allergy, diet, and food safety questions.
+- If the user mentions allergies or dietary preferences, consider them.
+- If allergy or diet information is required but missing, politely ask a follow-up question instead of guessing.
 - Prioritize food safety.
-- Consider the user's allergies.
-- Consider the user's diet.
 - If you are unsure, advise the user to verify the ingredient label.
 - Do not answer unrelated questions like programming, politics, hacking, etc.
 - Keep the response under 120 words.
 - Return the response as a single paragraph.
 - Do not use bullet points.
-- Do not use newline characters.
-- Do not use markdown formatting such as **bold** or lists.
+- Do not use markdown formatting.
 
 User Question:
 %s
-""".formatted(
-        allergies == null ? "None" : allergies,
-        diet == null ? "None" : diet,
-        message
-    );
+""".formatted(message);
 
     String requestBody = """
 {
